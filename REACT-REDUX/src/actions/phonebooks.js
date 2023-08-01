@@ -40,7 +40,7 @@ export const addContact = (name, phone) => async (dispatch) => {
 
 export const updateContact = (id, name, phone) => async (dispatch) => {
     try {
-        await axios.put(`http://localhost:3001/api/phonebooks/${id}`, {
+        await request.put(`api/phonebooks/${id}`, {
             name: name,
             phone: phone,
         });
@@ -55,7 +55,7 @@ export const updateContact = (id, name, phone) => async (dispatch) => {
 // New action for deleting a contact
 export const deleteContact = (id) => async (dispatch) => {
     try {
-        await axios.delete(`http://localhost:3001/api/phonebooks/${id}`);
+        await request.delete(`api/phonebooks/${id}`);
         dispatch({ type: 'DELETE_CONTACT_SUCCESS', payload: id });
     } catch (error) {
         console.error('Error deleting contact:', error);
