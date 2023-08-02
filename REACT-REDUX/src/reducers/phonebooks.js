@@ -21,8 +21,8 @@ const phonebookReducer = (state = initialState, action) => {
         case "LOAD_PHONEBOOKS_SUCCESS":
             return {
                 ...state,
-                data: action.payload.data,
-                totalPages: action.payload.totalPages,
+                data: action.data,
+                totalPages: action.totalPages,
                 isLoading: false,
             };
 

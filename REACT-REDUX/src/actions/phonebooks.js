@@ -6,6 +6,9 @@ const request = axios.create({
     headers: { 'X-Custom-Header': 'foobar' }
 });
 
+const loadPhonebooksSuccess = (data, totalPages) => ({ type: "LOAD_PHONEBOOKS_SUCCESS", data, totalPages })
+const loadPhonebooksFailure = () => ({ type: "LOAD_PHONEBOOKS_FAILURE" })
+
 export const fetchPhonebooks = (page, sortOrder, keyword = "") => async (dispatch, getState) => {
     dispatch({ type: "LOAD_PHONEBOOKS_REQUEST" }); // Set isLoading to true
     try {
@@ -17,13 +20,17 @@ export const fetchPhonebooks = (page, sortOrder, keyword = "") => async (dispatc
         const existingData = getState().data;
         const newData = page === 1 ? response.data.phonebooks : [...existingData, ...response.data.phonebooks];
 
-        dispatch({ type: "LOAD_PHONEBOOKS_SUCCESS", payload: { data: newData, totalPages: response.data.pages } });
+        dispatch(loadPhonebooksSuccess(newData, response.data.pages));
         return response.data.pages;
     } catch (error) {
-        dispatch({ type: "LOAD_PHONEBOOKS_FAILURE", payload: error.message });
+        dispatch(loadPhonebooksFailure());
         throw error; // Rethrow the error to the caller
     }
 };
+//END OF FETCH / LOAD DATA
+
+const addContactSuccess = (contact) => ({ type: "ADD_CONTACT_SUCCESS", payload: contact });
+const addContactFailure = () => ({ type: "ADD_CONTACT_FAILURE" });
 
 export const addContact = (name, phone) => async (dispatch) => {
     try {
@@ -31,12 +38,16 @@ export const addContact = (name, phone) => async (dispatch) => {
             name: name,
             phone: phone,
         });
-        dispatch({ type: "ADD_CONTACT_SUCCESS", payload: response.data });
+        dispatch(addContactSuccess(response.data)); // Pass the response.data as the payload
     } catch (error) {
-        dispatch({ type: "ADD_CONTACT_FAILURE", payload: error.message });
+        dispatch(addContactFailure());
         throw error;
     }
 };
+//END OF ADD CONTACT
+
+const updateContactSuccess = (id, name, phone) => ({ type: 'UPDATE_CONTACT_SUCCESS', payload: { id, name, phone } });
+const updateContactFailure = () => ({ type: 'UPDATE_CONTACT_FAILURE'});
 
 export const updateContact = (id, name, phone) => async (dispatch) => {
     try {
@@ -44,25 +55,30 @@ export const updateContact = (id, name, phone) => async (dispatch) => {
             name: name,
             phone: phone,
         });
-        dispatch({ type: 'UPDATE_CONTACT_SUCCESS', payload: { id, name, phone } });
+        dispatch(updateContactSuccess(id, name, phone)); // Pass the updated contact details as the payload
     } catch (error) {
         console.error('Error updating contact:', error);
-        dispatch({ type: 'UPDATE_CONTACT_FAILURE', payload: error.message });
+        dispatch(updateContactFailure());
         throw error;
     }
 };
+// END OF EDIT / UPDATE CONTACT
 
-// New action for deleting a contact
+
+const deleteContactSuccess = (id) => ({ type: 'DELETE_CONTACT_SUCCESS', payload: id });
+const deleteContactFailure = () => ({ type: 'DELETE_CONTACT_FAILURE'});
+
 export const deleteContact = (id) => async (dispatch) => {
-    try {
-        await request.delete(`api/phonebooks/${id}`);
-        dispatch({ type: 'DELETE_CONTACT_SUCCESS', payload: id });
-    } catch (error) {
-        console.error('Error deleting contact:', error);
-        dispatch({ type: 'DELETE_CONTACT_FAILURE', payload: error.message });
-        throw error;
-    }
+  try {
+    await request.delete(`api/phonebooks/${id}`);
+    dispatch(deleteContactSuccess(id)); // Pass the id of the deleted contact as the payload
+  } catch (error) {
+    console.error('Error deleting contact:', error);
+    dispatch(deleteContactFailure());
+    throw error;
+  }
 };
+// END OF DELETE CONTACT
 
 export const setSearchKeyword = (keyword) => ({
     type: "SET_SEARCH_KEYWORD",
