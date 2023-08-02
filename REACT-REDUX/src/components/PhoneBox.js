@@ -4,19 +4,15 @@ import { fetchPhonebooks, addContact, setCurrentPage, setSearchKeyword } from ".
 import PhoneHeader from "./PhoneHeader";
 import PhoneList from "./PhoneList";
 
-export default function App() {
+export default function PhoneBox() {
   const dispatch = useDispatch();
-  const { data, sortOrder, currentPage, searchKeyword } = useSelector((state) => state);
+  const { data, sortOrder, currentPage, totalPages, searchKeyword, isLoading } = useSelector((state) => state.phonebook);
 
-  const totalPagesRef = useRef(1);
   const isLoadingRef = useRef(false);
 
   useEffect(() => {
+    // Fetch initial data when the component mounts
     dispatch(fetchPhonebooks(currentPage, sortOrder, searchKeyword))
-      .then((totalPages) => {
-        totalPagesRef.current = totalPages;
-        isLoadingRef.current = false;
-      })
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
@@ -25,7 +21,7 @@ export default function App() {
   const handleAddContact = async (name, phone) => {
     try {
       await dispatch(addContact(name, phone));
-      window.location.reload();
+      // Don't need to reload the page after adding contact, the state will be updated automatically
     } catch (error) {
       console.error("Error creating contact:", error);
     }
@@ -38,13 +34,15 @@ export default function App() {
 
   const handleScroll = useCallback(() => {
     if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 200) {
-      if (currentPage < totalPagesRef.current && !isLoadingRef.current) {
+      if (currentPage < totalPages && !isLoadingRef.current) {
         isLoadingRef.current = true;
+        // Increment the current page by 1 to fetch the next page data
         dispatch(setCurrentPage(currentPage + 1));
       }
     }
-  }, [currentPage, totalPagesRef, isLoadingRef, dispatch]);
+  }, [currentPage, totalPages, isLoadingRef, dispatch]);
 
+  // Listen to scroll events and call handleScroll when appropriate
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
     return () => {
@@ -52,13 +50,18 @@ export default function App() {
     };
   }, [handleScroll]);
 
+  // Watch for changes in the 'isLoading' variable and reset isLoadingRef accordingly
+  useEffect(() => {
+    isLoadingRef.current = isLoading;
+  }, [isLoading]);
+
   return (
     <div className="container">
       <header>
         <PhoneHeader
           handleAddContact={handleAddContact}
           sortOrder={sortOrder}
-          setSortOrder={(order) => dispatch({ type: "SET_SORT_ORDER", payload: order })}
+          setSortOrder={(order) => dispatch({ type: 'SET_SORT_ORDER', payload: order })}
           handleSearch={handleSearch}
         />
       </header>

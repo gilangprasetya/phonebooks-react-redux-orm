@@ -4,7 +4,7 @@ import { createRoot } from "react-dom/client"; // Import createRoot from react-d
 import { Provider } from "react-redux";
 import { legacy_createStore as createStore, applyMiddleware } from "redux";
 import thunk from "redux-thunk";
-import rootReducer from "./reducers/phonebooks";
+import rootReducer from "./reducers";
 import App from "./App";
 
 const store = createStore(rootReducer, applyMiddleware(thunk));

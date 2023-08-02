@@ -17,7 +17,7 @@ export const fetchPhonebooks = (page, sortOrder, keyword = "") => async (dispatc
         });
 
         // Combine existing data with new data when fetching additional pages
-        const existingData = getState().data;
+        const existingData = getState().phonebook.data; // Update this line
         const newData = page === 1 ? response.data.phonebooks : [...existingData, ...response.data.phonebooks];
 
         dispatch(loadPhonebooksSuccess(newData, response.data.pages));
