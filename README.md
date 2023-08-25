@@ -2,7 +2,7 @@
 
 ## FRONT-END
 - React
-- React Redux
+- Redux
 
 ## BACK-END
 - ORM (Sequalize)
